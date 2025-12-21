@@ -29,22 +29,40 @@ int main(int argc, char *argv[]) {
     // Remove the trailing newline
     command[strcspn(command, "\n")] = '\0';
 
-    if (!strcmp(command, "exit")) {
+    // 2D array holding the arguments
+    char command_split[16][32];
+    int num_arg = 0;
+  
+    for (int i = 0; i < strlen(command); i++) {
+      // for now suppose no starting/trailing spaces,
+      // only one space between words
+      char arg[32];
+      int idx = 0;
+      while (command[i] != ' ') {
+        arg[idx++] = command[i++];
+      }
+      arg[idx] = '\0';
+
+      strcpy(command_split[num_arg++], arg);
+    }
+
+    if (!strcmp(command_split[0], "exit")) {
       break;
 
-    } else if (strstr(command, "echo")) {
-      char *msg = memchr(command, ' ', strlen(command)) + 1;
-      printf("%s\n", msg);
+    } else if (!strcmp(command_split[0], "echo")) {
+      //char *msg = memchr(command, ' ', strlen(command)) + 1;
+      printf("%s\n", command_split[1]);
 
-    } else if (strstr(command, "type")) {
-      char *cmd = memchr(command, ' ', strlen(cmd));
+    } else if (!strcmp(command_split[0], "type")) {
+      char cmd[32];
+      strcpy(cmd, command_split[1]);
       if (is_builtin_command(cmd)) {
         printf("%s is a shell builtin\n", cmd);
       } else {
         printf("%s: not found\n", cmd);
       }
     } else {
-      printf("%s: command not found\n", command);
+      printf("%s: command not found\n", command_split[0]);
     }
   }
 

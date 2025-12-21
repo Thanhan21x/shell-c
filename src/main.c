@@ -15,7 +15,6 @@ int is_builtin_command(const char* cmd) {
   }
 }
 
-
 int main(int argc, char *argv[]) {
   // Flush after every printf
   setbuf(stdout, NULL);
@@ -31,17 +30,18 @@ int main(int argc, char *argv[]) {
 
     // Take the command which is the word before the first space
     char command[64];
-    int command_len = 0;
-    for (int i = 0; i < strlen(input); i++) {
-      if (input[i] == ' ') {
-        break;
-      } else {
-        command[command_len++] = input[i];
-      }
-    }
-    command[command_len] = '\0';
+    char *space_pos = memchr(input, ' ', strlen(input));
+    if (space_pos == NULL) {
+      // only one argument
+      strcpy(command, input);
+    } else {
+      int len = space_pos - input;
+      memcpy(command, input, len);
+      command[len] = '\0';
 
-    if (!strcmp(command, "exit")) {
+
+    }
+       if (!strcmp(command, "exit")) {
       break;
 
     } else if (!strcmp(command, "echo")) {

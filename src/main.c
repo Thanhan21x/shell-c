@@ -6,10 +6,10 @@ int main(int argc, char *argv[]) {
   // Flush after every printf
   setbuf(stdout, NULL);
   
+  char command[1024];
   while (1) {
     printf("$ ");
 
-    char command[1024];
     fgets(command, sizeof(command), stdin);
 
     // Remove the trailing newline
@@ -18,9 +18,8 @@ int main(int argc, char *argv[]) {
     if (!strcmp(command, "exit")) {
       break;
 
-    } else if (!strcmp(command, "exit")) {
+    } else if (!strcmp(command, "echo")) {
       printf("%s\n", command);
-      continue;
 
     } else {
       printf("%s: command not found\n", command);

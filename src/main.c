@@ -17,9 +17,15 @@ int main(int argc, char *argv[]) {
 
     if (!strcmp(command, "exit")) {
       break;
+
+    } else if (!strcmp(command, "exit")) {
+      printf("%s\n", command);
+      continue;
+
+    } else {
+      printf("%s: command not found\n", command);
     }
 
-    printf("%s: command not found\n", command);
   }
 
   return 0;

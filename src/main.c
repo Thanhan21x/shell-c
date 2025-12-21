@@ -30,13 +30,13 @@ int main(int argc, char *argv[]) {
     command[strcspn(command, "\n")] = '\0';
 
     // 2D array holding the arguments
-    char command_split[16][32];
+    char command_split[32][64];
     int num_arg = 0;
   
     for (int i = 0; i < strlen(command); i++) {
       // for now suppose no starting/trailing spaces,
       // only one space between words
-      char arg[32];
+      char arg[64];
       int idx = 0;
       while (command[i] != ' ') {
         arg[idx++] = command[i++];
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
       strcpy(command_split[num_arg++], arg);
     }
 
-    num_arg --;
+    num_arg--;
 
     if (!strcmp(command_split[0], "exit")) {
       break;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
       printf("%s\n", command_split[1]);
 
     } else if (!strcmp(command_split[0], "type")) {
-      char cmd[32];
+      char cmd[64];
       strcpy(cmd, command_split[1]);
       if (is_builtin_command(cmd)) {
         printf("%s is a shell builtin\n", cmd);

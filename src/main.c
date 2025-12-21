@@ -23,48 +23,40 @@ int main(int argc, char *argv[]) {
   while (1) {
     printf("$ ");
 
-    char command[1024];
-    fgets(command, sizeof(command), stdin);
+    char input[1024];
+    fgets(input, sizeof(input), stdin);
 
     // Remove the trailing newline
-    command[strcspn(command, "\n")] = '\0';
+    input[strcspn(input, "\n")] = '\0';
 
-    // 2D array holding the arguments
-    char command_split[32][64];
-    int num_arg = 0;
-  
-    for (int i = 0; i < strlen(command); i++) {
-      // for now suppose no starting/trailing spaces,
-      // only one space between words
-      char arg[64];
-      int idx = 0;
-      while (command[i] != ' ') {
-        arg[idx++] = command[i++];
+    // Take the command which is the word before the first space
+    char command[64];
+    int command_len = 0;
+    for (int i = 0; i < strlen(input); i++) {
+      if (input[i] == ' ') {
+        break;
+      } else {
+        command[command_len++] = input[i];
       }
-      arg[idx] = '\0';
-
-      strcpy(command_split[num_arg++], arg);
     }
+    command[command_len] = '\0';
 
-    num_arg--;
-
-    if (!strcmp(command_split[0], "exit")) {
+    if (!strcmp(command, "exit")) {
       break;
 
-    } else if (!strcmp(command_split[0], "echo")) {
-      //char *msg = memchr(command, ' ', strlen(command)) + 1;
-      printf("%s\n", command_split[1]);
+    } else if (!strcmp(command, "echo")) {
+      char *msg = memchr(input, ' ', strlen(input)) + 1;
+      printf("%s\n", msg);
 
-    } else if (!strcmp(command_split[0], "type")) {
-      char cmd[64];
-      strcpy(cmd, command_split[1]);
+    } else if (!strcmp(command, "type")) {
+      char *cmd = memchr(input, ' ', strlen(input)) + 1;
       if (is_builtin_command(cmd)) {
         printf("%s is a shell builtin\n", cmd);
       } else {
         printf("%s: not found\n", cmd);
       }
     } else {
-      printf("%s: command not found\n", command_split[0]);
+      printf("%s: command not found\n", command);
     }
   }
 

@@ -18,8 +18,9 @@ int main(int argc, char *argv[]) {
     if (!strcmp(command, "exit")) {
       break;
 
-    } else if (!strcmp(command, "echo")) {
-      printf("%s\n", command);
+    } else if (strstr(command, "echo")) {
+      char *msg = memchr(command, ' ', strlen(command)) + 1;
+      printf("%s\n", msg);
 
     } else {
       printf("%s: command not found\n", command);

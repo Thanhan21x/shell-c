@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
       strcpy(command_split[num_arg++], arg);
     }
 
+    num_arg --;
+
     if (!strcmp(command_split[0], "exit")) {
       break;
 

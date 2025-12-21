@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
       printf("%s\n", msg);
 
     } else if (strstr(command, "type")) {
-      char *cmd = memchr(arg_start, ' ', strlen(arg_start)) 
+      char *cmd = memchr(command, ' ', strlen(cmd));
       if (is_builtin_command(cmd)) {
         printf("%s is a shell builtin\n", cmd);
       } else {
@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
     } else {
       printf("%s: command not found\n", command);
     }
-
   }
 
   return 0;

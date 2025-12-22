@@ -18,7 +18,7 @@ int is_builtin_command(const char *arg) {
   }
 }
 
-int is_executable_file(const char *path) {
+int is_executable(const char *path) {
   struct stat st;
 
   if (stat(path, &st) != 0)
@@ -27,7 +27,7 @@ int is_executable_file(const char *path) {
   return (st.st_mode & S_IXUSR) != 0;
 }
 
-int is_file_in_path(const char* file, const char *path) {
+int is_executable_in_path(const char* file, const char *path) {
   // list all executable in path and compare it with the arg
   DIR *dirp = opendir(path); 
   if (!dirp) {
@@ -36,12 +36,11 @@ int is_file_in_path(const char* file, const char *path) {
   }
   struct dirent *entry;
 
-
   while (entry = readdir(dirp)) {
     if (!strcmp(entry->d_name, file)) {
       char full_path[256];
       snprintf(full_path, sizeof(full_path), "%s/%s", path, file);
-      if (is_executable_file(full_path)){
+      if (is_executable(full_path)){
         return 1;
       }
     }
@@ -60,8 +59,6 @@ int is_executable_command(const char *arg, char *path_out) {
     exit(1);
   }
 
-
-
   while (paths < end) {
     char *colon = memchr(paths, ':', strlen(paths) + 1);
 
@@ -70,22 +67,20 @@ int is_executable_command(const char *arg, char *path_out) {
       int path_len = colon - paths;
       memcpy(path, paths, path_len);
       path[path_len] = '\0';
-      if (is_file_in_path(arg, path)) {
+      if (is_executable_in_path(arg, path)) {
         strcpy(path_out, path);
         return 1;
       }
       paths += strlen(path) + 1;
     } else {
       strcpy(path, paths);
-      if (is_file_in_path(arg, path)) {
+      if (is_executable_in_path(arg, path)) {
         strcpy(path_out, path);
         return 1;
       }
       paths += strlen(path) + 1 ;
     }
   }
-  // for every paths in PATH:
-  //  check if paths/arg is in there
   return 0;
 }
 

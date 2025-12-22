@@ -61,7 +61,6 @@ int is_executable_command(const char *arg, char *path_out) {
     exit(1);
   }
 
-  printf("paths len: %d\n", strlen(paths));
 
 
   while (paths < end) {

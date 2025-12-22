@@ -53,7 +53,6 @@ int is_file_in_path(const char* file, const char *path) {
 int is_executable_command(const char *arg, char *path_out) {
 
   char *paths = getenv("PATH");
-  printf("PATHS: %s\n", paths);
 
   char *end = memchr(paths, '\0', strlen(paths) + 1);
   if (end == NULL) {

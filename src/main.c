@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "sys/wait.h"
 #include <dirent.h>
 #include <unistd.h>
 
@@ -108,7 +109,8 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
     }
     p++;
   }
-
+  
+  argv[count] = NULL;
 
   *argc = count;
   //printf("*argc = %d\n", *argc);
@@ -185,9 +187,24 @@ int main(int argc, char *argv[]) {
 
       //printf("full_path: %s\n", full_path);
 
-      execv(full_path, _argv);
+      pid_t pid = fork();
+
+      // in child process
+      if (pid == 0) {
+        execv(full_path, _argv);
+        perror("execv");
+        _exit(1);
+      // in parent process (this program)
+      } else if (pid > 0) {
+        // wait for the chil to exit
+        waitpid(pid, NULL, 0); // wait for child process done
+      } else {
+        perror("fork");
+      }
 
     // Invalid command
+    } else if (strlen(command) == 0) {
+      continue;
     } else {
       printf("%s: command not found\n", command);
     }

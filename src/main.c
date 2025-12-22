@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #define MAX_COMMAND_NUM 128
 #define MAX_COMMAND_LEN 32
@@ -97,9 +98,8 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
       memcpy(arg, start, (int)(p - start));
       arg[p-start] = '\0';
 
-      printf("arg %d: %s\n", count++, arg);
-
-
+      //printf("arg %d: %s\n", count, arg);
+      argv[count++] = strdup(arg);
 
       if (*p == '\0')
         break;
@@ -109,7 +109,9 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
     p++;
   }
 
+
   *argc = count;
+  //printf("*argc = %d\n", *argc);
 }
 
 int main(int argc, char *argv[]) {
@@ -119,7 +121,7 @@ int main(int argc, char *argv[]) {
   while (1) {
     printf("$ ");
 
-    char path_found[64];
+    char exec_path[64];
 
     int _argc;
     char *_argv[1024];
@@ -129,51 +131,61 @@ int main(int argc, char *argv[]) {
  
     // Remove the trailing newline
     input[strcspn(input, "\n")] = '\0';
+
+    //printf("input: %s\n", input);
  
     get_arg(input, &_argc, _argv);
+
+    //printf("argc: %d\n", argc);
+    /*
     printf("argument count: %d\n", _argc);
+
+    for (int i = 0; i < _argc; i++) {
+      printf("argv[%d]: %s\n", i, _argv[i]);
+    }
+    */
 
 
     // Take the command which is the word before the first space
     char command[64];
-    char *space_pos = memchr(input, ' ', strlen(input));
+    strcpy(command, _argv[0]);
 
+    //printf("command: %s\n", command);
 
-    if (space_pos == NULL) {
-      // only one argument
-      strcpy(command, input);
-    } else {
-      int len = space_pos - input;
-      memcpy(command, input, len);
-      command[len] = '\0';
-    }
-    
     // Command exit
     if (!strcmp(command, "exit")) {
       break;
 
     // Command echo
     } else if (!strcmp(command, "echo")) {
+      // echo everything after the space
       char *msg = memchr(input, ' ', strlen(input)) + 1;
       printf("%s\n", msg);
 
     // Command type
     } else if (!strcmp(command, "type")) {
-      char *arg = memchr(input, ' ', strlen(input)) + 1;
-      // Check if it's a builtin command
-      if (is_builtin_command(arg)) {
-        printf("%s is a shell builtin\n", arg);
-      // Check if it's an executable, print its path if found
-      } else if (is_executable_command(arg, path_found)) {
-        // copy the executable's path to path
-        printf("%s is %s/%s\n", arg, path_found, arg);
-      } else {
-        printf("%s: not found\n", arg);
+      
+      //printf("argc: %d\n", argc);
+      for (int i = 1; i < _argc; i++) {
+        if (is_builtin_command(_argv[i])) {
+          printf("%s is a shell builtin\n", _argv[i]);
+        // Check if it's an executable, print its path if found
+        } else if (is_executable_command(_argv[i], exec_path)) {
+          // copy the executable's path to path
+          printf("%s is %s/%s\n", _argv[i], exec_path, _argv[i]);
+        } else {
+          printf("%s: not found\n", _argv[i]);
+        }
       }
 
     // Run Executable
-    } else if (is_executable_command(command, path_found)) {
-      continue;
+    } else if (is_executable_command(command, exec_path)) {
+      char full_path[128];
+      snprintf(full_path, sizeof(full_path), "%s/%s", exec_path, command);
+
+      //printf("full_path: %s\n", full_path);
+
+      execv(full_path, _argv);
 
     // Invalid command
     } else {

@@ -8,8 +8,6 @@
 #define MAX_COMMAND_LEN 32
 
 
-#define PATH "/usr/bin:/usr/local/bin"
-
 int is_builtin_command(const char *arg) {
   if (!strcmp(arg, "exit") || 
       !strcmp(arg, "echo") ||
@@ -53,11 +51,9 @@ int is_file_in_path(const char* file, const char *path) {
 }
 
 int is_executable_command(const char *arg, char *path_out) {
-  char paths[256];
-  strcpy(paths, PATH);
 
-  char *ptr = paths;
-
+  char *paths = getenv("PATH");
+  printf("PATHS: %s\n", paths);
 
   char *end = memchr(paths, '\0', strlen(paths) + 1);
   if (end == NULL) {
@@ -65,30 +61,29 @@ int is_executable_command(const char *arg, char *path_out) {
     exit(1);
   }
 
+  printf("paths len: %d\n", strlen(paths));
 
-  while (ptr < end) {
-    char *colon = memchr(ptr, ':', strlen(ptr) + 1);
 
-    char path[64];
+  while (paths < end) {
+    char *colon = memchr(paths, ':', strlen(paths) + 1);
+
+    char path[256];
     if (colon) {
       int path_len = colon - paths;
-      memcpy(path, ptr, path_len);
+      memcpy(path, paths, path_len);
       path[path_len] = '\0';
-      ptr += strlen(path) + 1;
-
       if (is_file_in_path(arg, path)) {
         strcpy(path_out, path);
         return 1;
       }
-
+      paths += strlen(path) + 1;
     } else {
-      strcpy(path, ptr); // there is only one path, or its the last paths
-      ptr += strlen(path) + 1 ;
-
+      strcpy(path, paths);
       if (is_file_in_path(arg, path)) {
         strcpy(path_out, path);
         return 1;
       }
+      paths += strlen(path) + 1 ;
     }
   }
   // for every paths in PATH:

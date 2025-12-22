@@ -84,24 +84,60 @@ int is_executable_command(const char *arg, char *path_out) {
   return 0;
 }
 
+void get_arg(const char *cmd, int *argc, char *argv[]) {
+  const char *start = cmd;
+  const char *p = cmd;
+ 
+  int count = 0;
+
+  while (1) {
+    if (*p == ' ' || *p == '\0') {
+      char arg[32];
+
+      memcpy(arg, start, (int)(p - start));
+      arg[p-start] = '\0';
+
+      printf("arg %d: %s\n", count++, arg);
+
+
+
+      if (*p == '\0')
+        break;
+
+      start = p + 1;
+    }
+    p++;
+  }
+
+  *argc = count;
+}
+
 int main(int argc, char *argv[]) {
   // Flush after every printf
   setbuf(stdout, NULL);
-  
+
   while (1) {
     printf("$ ");
 
+    char path_found[64];
+
+    int _argc;
+    char *_argv[1024];
+
     char input[1024];
     fgets(input, sizeof(input), stdin);
-
+ 
     // Remove the trailing newline
     input[strcspn(input, "\n")] = '\0';
+ 
+    get_arg(input, &_argc, _argv);
+    printf("argument count: %d\n", _argc);
+
 
     // Take the command which is the word before the first space
     char command[64];
     char *space_pos = memchr(input, ' ', strlen(input));
 
-    char path_found[64];
 
     if (space_pos == NULL) {
       // only one argument
@@ -111,25 +147,35 @@ int main(int argc, char *argv[]) {
       memcpy(command, input, len);
       command[len] = '\0';
     }
-       if (!strcmp(command, "exit")) {
+    
+    // Command exit
+    if (!strcmp(command, "exit")) {
       break;
 
+    // Command echo
     } else if (!strcmp(command, "echo")) {
       char *msg = memchr(input, ' ', strlen(input)) + 1;
       printf("%s\n", msg);
 
+    // Command type
     } else if (!strcmp(command, "type")) {
-      char *cmd = memchr(input, ' ', strlen(input)) + 1;
+      char *arg = memchr(input, ' ', strlen(input)) + 1;
       // Check if it's a builtin command
-      if (is_builtin_command(cmd)) {
-        printf("%s is a shell builtin\n", cmd);
+      if (is_builtin_command(arg)) {
+        printf("%s is a shell builtin\n", arg);
       // Check if it's an executable, print its path if found
-      } else if (is_executable_command(cmd, path_found)) {
+      } else if (is_executable_command(arg, path_found)) {
         // copy the executable's path to path
-        printf("%s is %s/%s\n", cmd, path_found, cmd);
-      }else {
-        printf("%s: not found\n", cmd);
+        printf("%s is %s/%s\n", arg, path_found, arg);
+      } else {
+        printf("%s: not found\n", arg);
       }
+
+    // Run Executable
+    } else if (is_executable_command(command, path_found)) {
+      continue;
+
+    // Invalid command
     } else {
       printf("%s: command not found\n", command);
     }

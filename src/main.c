@@ -58,7 +58,6 @@ int is_executable_command(const char *arg, char *path_out) {
   char *path = strtok(paths, ":");
 
   while (path) {
-    puts(path);
     if (is_executable_in_path(arg, path)) {
       strcpy(path_out, path);
       return 1;

@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
       continue;
 
     } else if (!strcmp(command, "exit")) {
-      return 1;
+      exit(1);
 
     } else if (!strcmp(command, "echo")) {
       char *msg = memchr(input, ' ', strlen(input)) + 1;

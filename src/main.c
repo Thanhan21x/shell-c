@@ -9,15 +9,23 @@
 #define MAX_COMMAND_NUM 128
 #define MAX_COMMAND_LEN 32
 
+const char shell_builtin[] = "exit:echo:type:pwd";
 
-int is_builtin_command(const char *arg) {
-  if (!strcmp(arg, "exit") || 
-      !strcmp(arg, "echo") ||
-      !strcmp(arg, "type")) {
-    return 1;
-  } else {
-    return 0;
+
+int is_builtin_command(const char* arg) {
+  char *cmds = strdup(shell_builtin);
+
+  char *cmd = strtok(cmds, ":");
+
+  while(cmd) {
+    if (!strcmp(arg, cmd)) {
+      return 1;
+    }
+
+    cmd = strtok(NULL, ":");
   }
+ 
+  return 0;
 }
 
 int is_executable(const char *path) {

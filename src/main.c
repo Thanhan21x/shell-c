@@ -125,8 +125,11 @@ int main(int argc, char *argv[]) {
 
     //printf("command: %s\n", command);
 
+    if (strlen(command) < 1) {
+      continue;
+
     // Command exit
-    if (!strcmp(command, "exit")) {
+    } else if (!strcmp(command, "exit")) {
       break;
 
     // Command echo
@@ -152,6 +155,11 @@ int main(int argc, char *argv[]) {
       }
 
     // Run Executable
+    } else if (!strcmp(command, "pwd")) {
+      char cwd[256];
+      getcwd(cwd, sizeof(cwd));
+      printf("%s\n", cwd);
+
     } else if (is_executable_command(command, exec_path)) {
       char full_path[128];
       snprintf(full_path, sizeof(full_path), "%s/%s", exec_path, command);
@@ -173,9 +181,6 @@ int main(int argc, char *argv[]) {
         perror("fork");
       }
 
-    // Invalid command
-    } else if (strlen(command) == 0) {
-      continue;
     } else {
       printf("%s: command not found\n", command);
     }

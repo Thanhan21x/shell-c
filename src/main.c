@@ -53,36 +53,20 @@ int is_executable_in_path(const char* file, const char *path) {
 
 int is_executable_command(const char *arg, char *path_out) {
 
-  char *paths = getenv("PATH");
+  char *paths = strdup(getenv("PATH"));
 
-  char *end = memchr(paths, '\0', strlen(paths) + 1);
-  if (end == NULL) {
-    fprintf(stderr,"Wrong string format for PATH");
-    exit(1);
-  }
+  char *path = strtok(paths, ":");
 
-  while (paths < end) {
-    char *colon = memchr(paths, ':', strlen(paths) + 1);
-
-    char path[256];
-    if (colon) {
-      int path_len = colon - paths;
-      memcpy(path, paths, path_len);
-      path[path_len] = '\0';
-      if (is_executable_in_path(arg, path)) {
-        strcpy(path_out, path);
-        return 1;
-      }
-      paths += strlen(path) + 1;
-    } else {
-      strcpy(path, paths);
-      if (is_executable_in_path(arg, path)) {
-        strcpy(path_out, path);
-        return 1;
-      }
-      paths += strlen(path) + 1 ;
+  while (path) {
+    puts(path);
+    if (is_executable_in_path(arg, path)) {
+      strcpy(path_out, path);
+      return 1;
     }
+
+    path = strtok(NULL, ":");
   }
+
   return 0;
 }
 

@@ -96,7 +96,6 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
   argv[count] = NULL;
 
   *argc = count;
-  //printf("*argc = %d\n", *argc);
 }
 
 int main(int argc, char *argv[]) {
@@ -117,19 +116,8 @@ int main(int argc, char *argv[]) {
     // Remove the trailing newline
     input[strcspn(input, "\n")] = '\0';
 
-    //printf("input: %s\n", input);
  
     get_arg(input, &_argc, _argv);
-
-    //printf("argc: %d\n", argc);
-    /*
-    printf("argument count: %d\n", _argc);
-
-    for (int i = 0; i < _argc; i++) {
-      printf("argv[%d]: %s\n", i, _argv[i]);
-    }
-    */
-
 
     // Take the command which is the word before the first space
     char command[64];

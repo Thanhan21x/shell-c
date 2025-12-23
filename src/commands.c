@@ -37,8 +37,4 @@ void command_run(char *path, char *cmd, char *_argv[]) {
   }
 }
 
-void command_cd(char *path) {
-  if (chdir(path) == -1) {
-    fprintf(stderr, "cd: %s: No such file or directory\n", path);
-  } 
-}
+

@@ -42,14 +42,16 @@ int main(int argc, char *argv[]) {
       printf("%s\n", cwd);
 
     } else if (!strcmp(command, "cd")) {
-      if (strcmp(_argv[1], "~")) {
-        printf("~~~\n");
-        if (chdir(getenv("HOME")) == -1) {
-          fprintf(stderr, "cd: %s: No such file or directory\n", getenv("HOME"));
-        }
-      } else if (chdir(_argv[1]) == -1) {
+      int status;
+      if (_argc == 1 || !strcmp(_argv[1], "~")) {
+        status  = chdir(getenv("HOME"));
+      } else  {
+        status = chdir(_argv[1]);
+      }
+      if (status == -1) {
         fprintf(stderr, "cd: %s: No such file or directory\n", _argv[1]);
       }
+
 
     } else if (is_executable_command(command, exec_path)) {
       command_run(exec_path, command, _argv);

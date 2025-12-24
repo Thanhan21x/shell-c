@@ -67,6 +67,7 @@ int is_executable_command(const char *arg, char *path_out) {
   return 0;
 }
 
+/*
 void get_arg(const char *cmd, int *argc, char *argv[]) {
   const char *start = cmd;
   const char *p = cmd;
@@ -74,6 +75,7 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
   int count = 0;
 
   while (1) {
+    // case: no single quote
     if (*p == ' ' || *p == '\0') {
       char arg[32];
 
@@ -87,6 +89,7 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
         break;
 
       start = p + 1;
+
     }
     p++;
   }
@@ -94,4 +97,68 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
   argv[count] = NULL;
 
   *argc = count;
+}
+*/
+
+void get_arg(const char *cmd, int *argc, char *argv[]) {
+  const char *start = cmd; // start of an arg
+  const char *p = cmd; // pointer to the current char
+  //
+
+
+  // Iterate over the cmd
+  while (1) {
+    // ignore empty quote
+    if (*p == '\'' &&p[1] != '\0' && *(p+1) == '\'') {
+      p += 2;
+
+    // encounter openning single quote
+    } else if (*p == '\'' && *(p+1) != '\'') {
+      p++; // start char is right after p
+
+      char arg[32];
+      int idx = 0;
+      // while not encounter 
+      while (*p != '\'' && *p != '\0') {
+        arg[idx++] = *(p++);
+        // ignore inner empty quote
+        if (*p == '\'' && *(p+1) == '\'') {
+          p += 2;
+        }
+      }
+      // p now points to the char after the ending quote
+      arg[idx] = '\0';
+
+      argv[(*argc)++] = strdup(arg);
+
+      while (*p == ' ') {
+        // ignore trailing space
+        p++;
+      }
+      start = p;
+
+      printf("arg: %s\n", arg);
+    // regular arg (separate by spaces)
+    } else if (*p == ' ' || *p == '\0') {
+      char arg[32];
+
+      memcpy(arg, start, (int)(p - start));
+      arg[p-start] = '\0';
+
+      argv[(*argc)++] = strdup(arg);
+
+      if (*p == '\0')
+        break;
+
+      start = p++;
+
+      printf("arg: %s\n", arg);
+
+    } else {
+      p++;
+    }
+  }
+
+  // add NULL terminal
+  argv[*argc] = NULL;
 }

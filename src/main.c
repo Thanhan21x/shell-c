@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     // Remove the trailing newline
     input[strcspn(input, "\n")] = '\0';
  
-    int _argc;
+    int _argc = 0;
     char *_argv[1024];
     get_arg(input, &_argc, _argv);
 
@@ -30,8 +30,10 @@ int main(int argc, char *argv[]) {
       return 0;
 
     } else if (!strcmp(command, "echo")) {
-      char *msg = memchr(input, ' ', strlen(input)) + 1;
-      printf("%s\n", msg);
+      for (int i = 1; i < _argc; i++) {
+        printf("%s ", _argv[i]);
+      }
+      printf("\n");
 
     } else if (!strcmp(command, "type")) {
       command_type(_argc, _argv);
@@ -51,7 +53,6 @@ int main(int argc, char *argv[]) {
       if (status == -1) {
         fprintf(stderr, "cd: %s: No such file or directory\n", _argv[1]);
       }
-
 
     } else if (is_executable_command(command, exec_path)) {
       command_run(exec_path, command, _argv);

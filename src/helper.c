@@ -103,17 +103,16 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
 void get_arg(const char *cmd, int *argc, char *argv[]) {
   const char *start = cmd; // start of an arg
   const char *p = cmd; // pointer to the current char
-  //
 
 
   // Iterate over the cmd
   while (1) {
     // ignore empty quote
-    if (*p == '\'' &&p[1] != '\0' && *(p+1) == '\'') {
+    if (p[0] == '\'' && p[1] != '\0' && p[1] == '\'') {
       p += 2;
 
     // encounter openning single quote
-    } else if (*p == '\'' && *(p+1) != '\'') {
+    } else if (p[0] == '\'' && p[1] != '\'') {
       p++; // start char is right after p
 
       char arg[32];
@@ -122,22 +121,29 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
       while (*p != '\'' && *p != '\0') {
         arg[idx++] = *(p++);
         // ignore inner empty quote
-        if (*p == '\'' && *(p+1) == '\'') {
+        if (p[0] == '\'' && p[1] != '\0' && p[1] == '\'') {
           p += 2;
-        }
+        } 
       }
-      // p now points to the char after the ending quote
+
+
+      // p now points to ending quote
       arg[idx] = '\0';
 
       argv[(*argc)++] = strdup(arg);
 
+      p++; // advance pass the '
       while (*p == ' ') {
         // ignore trailing space
         p++;
       }
-      start = p;
+      
+      start =  p++;
+
+      printf("start: %s\n", start);
 
       printf("arg: %s\n", arg);
+
     // regular arg (separate by spaces)
     } else if (*p == ' ' || *p == '\0') {
       char arg[32];
@@ -150,8 +156,9 @@ void get_arg(const char *cmd, int *argc, char *argv[]) {
       if (*p == '\0')
         break;
 
-      start = p++;
+      start = p + 1;
 
+      p++;
       printf("arg: %s\n", arg);
 
     } else {

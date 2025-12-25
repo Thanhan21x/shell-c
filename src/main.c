@@ -17,6 +17,8 @@ int main(int argc, char *argv[]) {
     char *_argv[1024];
     get_arg(input, &_argc, _argv);
 
+    printf("argc: %d\n", _argc);
+
     // Take the command which is the word before the first space
     char command[64];
     strcpy(command, _argv[0]);

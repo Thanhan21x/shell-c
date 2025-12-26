@@ -60,12 +60,10 @@ char **parse_input(char *input) {
               token[token_cursor++] = '\\';
               token[token_cursor++] = parser->current;
             }
-            parser_advance(parser);
           } else {
             token[token_cursor++] = parser->current;
-            parser_advance(parser);
-
           }
+          parser_advance(parser);
         }
         break;
       case '\\':

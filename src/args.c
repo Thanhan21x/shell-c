@@ -51,8 +51,21 @@ char **parse_input(char *input) {
       case '\"':
         parser_advance(parser);
         while(parser->current != '\"') {
-          token[token_cursor++] = parser->current;
-          parser_advance(parser);
+          if (parser->current == '\\') {
+            parser_advance(parser);
+            parser->current;
+            if (parser->current == '\\' || parser->current == '\"') {
+              token[token_cursor++] = parser->current;
+            } else {
+              token[token_cursor++] = '\\';
+              token[token_cursor++] = parser->current;
+            }
+            parser_advance(parser);
+          } else {
+            token[token_cursor++] = parser->current;
+            parser_advance(parser);
+
+          }
         }
         break;
       case '\\':

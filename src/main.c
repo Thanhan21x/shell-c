@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <wait.h>
+#include <errno.h>
 
 #include <readline/history.h>
 #include <readline/readline.h>
@@ -43,6 +44,10 @@ int main(int argc, char *argv[]) {
       }
 
       FILE *fp = fopen(filename, "w+");
+      if (!fp) {
+        fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
+        return 1;
+      } 
       exec_command(args, fp);
       fclose(fp);
     } else {

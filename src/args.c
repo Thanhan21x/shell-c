@@ -54,6 +54,7 @@ char **parse_input(char *input) {
           token[token_cursor++] = parser->current;
           parser_advance(parser);
         }
+        break;
       default:
         token[token_cursor++] = parser->current;
         break;

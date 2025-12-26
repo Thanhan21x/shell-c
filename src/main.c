@@ -32,7 +32,23 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    exec_command(args, stdout);
+    if (includes(args, ">") || includes(args, "1>")) {
+      char filename[256];
+      for (int i = 0; args[i] != NULL; i++) {
+        if (!strcmp(args[i], ">") || !strcmp(args[i], "1>")) {
+          strcpy(filename, args[i + 1]);
+          printf("filename = %s\n", filename);
+          printf("idx = %d\n", i);
+          args[i] = NULL;
+          break;
+        }
+      }
+      FILE *fp = fopen(filename, "w+");
+      exec_command(args, fp);
+    } else {
+      exec_command(args, stdout);
+    }
+
 
     cleanup_args(args);
   }

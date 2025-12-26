@@ -34,6 +34,7 @@ int exec_builtin_cd(char **args, FILE *file) {
 
 int exec_builtin_echo(char **args, FILE *file) {
   char *output = str_join_from(args, 1, " ");
+  printf("output echo: %d\n", output);
   fprintf(file, "%s\n", output);
 
   free(output);

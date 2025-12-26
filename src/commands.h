@@ -3,9 +3,15 @@
 
 #include "helper.h"
 
-void command_type(int _argc, char* _argv[]);
+void command_pwd();
 
-void command_run(char *path, char *cmd, char *_argv[]);
+void command_cd(char **args);
+
+void command_type(char** args);
+
+void command_echo(char **args);
+
+void command_run(char **args, char *path);
 
 
 

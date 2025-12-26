@@ -55,6 +55,11 @@ char **parse_input(char *input) {
           parser_advance(parser);
         }
         break;
+      case '\\':
+        parser_advance(parser);
+        //printf("current = %c\n", parser->current);
+        token[token_cursor++] = parser->current;
+        break;
       default:
         token[token_cursor++] = parser->current;
         break;

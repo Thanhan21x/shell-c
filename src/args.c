@@ -48,6 +48,12 @@ char **parse_input(char *input) {
           parser_advance(parser);
         }
         break;
+      case '\"':
+        parser_advance(parser);
+        while(parser->current != '\"') {
+          token[token_cursor++] = parser->current;
+          parser_advance(parser);
+        }
       default:
         token[token_cursor++] = parser->current;
         break;

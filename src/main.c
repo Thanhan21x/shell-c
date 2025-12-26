@@ -1,48 +1,40 @@
-#include "commands.h"
 #include "args.h"
+#include "commands.h"
+#include "utils.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <wait.h>
+
+#include <readline/history.h>
+#include <readline/readline.h>
 
 int main(int argc, char *argv[]) {
-  // Flush after every printf
-  setbuf(stdout, NULL);
+  while (true) {
+    setbuf(stdout, NULL);
 
-  while (1) {
-    printf("$ ");
+    char prompt[MAX_INPUT];
+    snprintf(prompt, sizeof(prompt), "$ ");
 
-    char input[1024];
-    fgets(input, sizeof(input), stdin);
- 
-    // Remove the trailing newline
-    input[strcspn(input, "\n")] = '\0';
+    char *input = readline(prompt);
+
+    if (strlen(input) < 1) {
+      continue;
+    }
 
     char **args = parse_input(input);
 
+    free(input);
 
-    char exec_path[64];
-
-    if (strlen(args[0]) < 1) {
+    if (args == NULL) {
       continue;
-
-    } else if (!strcmp(args[0], "exit")) {
-      return 0;
-
-    } else if (!strcmp(args[0], "echo")) {
-      command_echo(args);
-
-    } else if (!strcmp(args[0], "type")) {
-      command_type(args);
-      
-    } else if (!strcmp(args[0], "pwd")) {
-      command_pwd();
-
-    } else if (!strcmp(args[0], "cd")) {
-      command_cd(args);
-
-    } else if (is_executable_command(args[0], exec_path)) {
-      command_run(args, exec_path);
-
-    } else {
-      printf("%s: command not found\n", args[0]);
     }
+
+    exec_command(args, stdout);
+
+    cleanup_args(args);
   }
 
   return 0;

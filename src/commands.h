@@ -1,18 +1,22 @@
 #ifndef COMMANDS_H
+#include <stdbool.h>
+#include <stdio.h>
+
 #define COMMANDS_H
 
-#include "helper.h"
+bool is_builtin_command(char *command);
 
-void command_pwd();
+int exec_builtin_cd(char **args, FILE *file);
 
-void command_cd(char **args);
+int exec_builtin_echo(char **args, FILE *file);
 
-void command_type(char** args);
+int exec_builtin_exit(char **args);
 
-void command_echo(char **args);
+int exec_builtin_pwd(FILE *file);
 
-void command_run(char **args, char *path);
+int exec_builtin_type(char **args, FILE *file);
 
+int exec_builtin_command(char **args, FILE *file);
 
-
-#endif // !COMMANDS_H
+int exec_command(char **args, FILE *ouput);
+#endif

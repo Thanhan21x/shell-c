@@ -1,7 +1,9 @@
 #include "commands.h"
 #include "path_builder.h"
-#include "sys/wait.h"
 #include "utils.h"
+#include "redirect.h"
+
+#include "sys/wait.h"
 #include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -57,6 +59,7 @@ int exec_builtin_pwd(FILE *file) {
   char buffer[1024];
   if (getcwd(buffer, sizeof(buffer)) != NULL) {
     fprintf(file, "%s\n", buffer);
+    fflush(file);
 
     return 0;
   }
@@ -134,19 +137,17 @@ int exec_builtin_command(char **args, FILE *file) {
 }
 
 int exec_command(char **args, FILE *file) {
-  char *redirect_file;
-  FILE *fp;
-  if (redirect_file = get_redirect_file(args)) {
-    fp = fopen(redirect_file, "w+");
-    if (!fp) {
-      fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
-      exit(1);
-    }
-    file = fp;
-  }
+  redirect_t *rd = is_redirection(args);
 
   if (is_builtin_command(args[0])) {
-    char *after_cut = str_join_from(args, 0, " ");
+    if (rd->filename) {
+      FILE* fp = fopen(rd->filename, "w+");
+      if (!fp) {
+        fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
+        exit(1);
+      }
+      return exec_builtin_command(args, fp);
+    }
     return exec_builtin_command(args, file);
   }
 
@@ -155,11 +156,18 @@ int exec_command(char **args, FILE *file) {
   if (pid == 0) {
     // child
 
-    if (redirect_file) {
-      int fd = open(redirect_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      dup2(fd, STDOUT_FILENO);
+    if (rd->filename) {
+      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      if (rd->type == 1) {
+        dup2(fd, STDOUT_FILENO);
+      } else if (rd->type == 2) {
+        dup2(fd, STDERR_FILENO);
+      }
+
       close(fd);
+      free(rd);
     }
+
     execvp(args[0], args);
 
     fprintf(stderr, "%s: command not found\n", args[0]);

@@ -140,7 +140,7 @@ int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
   if (rd->filename) {
-    ensure_parent_dirs(rd->filename);
+    ensure_parent_dirs(rd->filename); // make parent dirs
     if (rd->type == 1) {
       file = fopen(rd->filename, rd->mode);
       if (!file) {

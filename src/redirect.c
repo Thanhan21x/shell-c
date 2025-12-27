@@ -16,13 +16,6 @@ redirect_t *is_redirection(char **args) {
       args[i] = NULL;
       args[i+1] = NULL;
       return rd;
-    } else if (!strcmp(args[i], "2>")) {
-      rd->filename = strdup(args[i+1]);
-      rd->type = 2;
-      rd->mode = "W";
-      args[i] = NULL;
-      args[i+1] = NULL;
-      return rd;
     } else if (!strcmp(args[i], ">>") || !strcmp(args[i], "1>>")) {
       rd->filename = strdup(args[i+1]);
       rd->type = 1;
@@ -30,7 +23,21 @@ redirect_t *is_redirection(char **args) {
       args[i] = NULL;
       args[i+1] = NULL;
       return rd;
-    }
+    } else if (!strcmp(args[i], "2>")) {
+      rd->filename = strdup(args[i+1]);
+      rd->type = 2;
+      rd->mode = "w";
+      args[i] = NULL;
+      args[i+1] = NULL;
+      return rd;
+    } else if (!strcmp(args[i], "2>>")) {
+      rd->filename = strdup(args[i+1]);
+      rd->type = 2;
+      rd->mode = "a";
+      args[i] = NULL;
+      args[i+1] = NULL;
+      return rd;
+    } 
   }
 
   rd->filename = NULL;

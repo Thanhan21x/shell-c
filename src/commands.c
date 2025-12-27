@@ -107,7 +107,7 @@ int exec_builtin_type(char **args, FILE *file) {
 
   free(paths);
 
-  fprintf(file, "%s: not found\n", args[1]);
+  fprintf(stderr, "%s: not found\n", args[1]);
 
   return 1;
 }

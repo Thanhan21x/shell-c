@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "utils.h"
 
 redirect_t *is_redirection(char **args) {
   redirect_t *rd = malloc(sizeof(redirect_t));
@@ -42,17 +43,18 @@ redirect_t *is_redirection(char **args) {
 
   rd->filename = NULL;
   rd->type = -1;
+  rd->mode = "r";
   return rd;
 
 }
 
 
 void do_redirection(redirect_t *rd) {
-    int fd;
+    int fd = -1;
 
     if (!strcmp(rd->mode, "w")) {
         fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    } else {
+    } else if (!strcmp(rd->mode, "a")) {
         fd = open(rd->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
     }
 
@@ -66,10 +68,7 @@ void do_redirection(redirect_t *rd) {
         dup2(fd, STDOUT_FILENO);
     } else if (rd->type == 2) {
         dup2(fd, STDERR_FILENO);
-    } else {
-        fprintf(stderr, "Invalid redirect type\n");
-    }
-
+    } 
     close(fd);
 }
 

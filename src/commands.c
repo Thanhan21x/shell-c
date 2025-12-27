@@ -139,22 +139,27 @@ int exec_builtin_command(char **args, FILE *file) {
 int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
-  if (rd->filename) {
-    ensure_parent_dirs(rd->filename); // make parent dirs
-    if (rd->type == 1) {
-      file = fopen(rd->filename, rd->mode);
-      if (!file) {
-        fprintf(stderr, "fail to open file");
-        exit(1);
-      }
-    } else if (rd->type == 2) {
-      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      dup2(fd, STDERR_FILENO);
-    }
-  }
 
   if (is_builtin_command(args[0])) {
-    return exec_builtin_command(args, file);
+
+    if (rd->filename) {
+      char buf[512];
+      strncpy(buf, rd->filename, sizeof(buf));
+
+      ensure_parent_dirs(buf); // make parent dirs
+
+      if (rd->type == 1) {
+        file = fopen(rd->filename, rd->mode);
+        if (!file) {
+          fprintf(stderr, "Failed to open file: %s\n", strerror(errno));
+          exit(1);
+        }
+      } else if (rd->type == 2) {
+        int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        dup2(fd, STDERR_FILENO);
+      }
+    }
+      return exec_builtin_command(args, file);
   }
 
   pid_t pid = fork();
@@ -163,8 +168,26 @@ int exec_command(char **args, FILE *file) {
     // child
 
     if (rd->filename) {
-      ensure_parent_dirs(rd->filename);
-      do_redirection(rd);
+      int fd;
+
+      if (!strcmp(rd->mode, "w")) {
+          fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      } else if (!strcmp(rd->mode, "a")) {
+          fd = open(rd->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+      }
+
+      if (fd < 0) {
+          perror("open");
+          exit(1);
+      }
+
+
+      if (rd->type == 1) {
+          dup2(fd, STDOUT_FILENO);
+      } else if (rd->type == 2) {
+          dup2(fd, STDERR_FILENO);
+      } 
+      close(fd);
     }
 
     execvp(args[0], args);

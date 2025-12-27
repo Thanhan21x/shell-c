@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 const char *builtins[] = {"cd", "echo", "exit", "pwd", "type", NULL};
 
@@ -34,7 +36,9 @@ int exec_builtin_cd(char **args, FILE *file) {
 
 int exec_builtin_echo(char **args, FILE *file) {
   char *output = str_join_from(args, 1, " ");
+
   fprintf(file, "%s\n", output);
+  fflush(file);
 
   free(output);
 
@@ -130,16 +134,35 @@ int exec_builtin_command(char **args, FILE *file) {
 }
 
 int exec_command(char **args, FILE *file) {
+  char *redirect_file;
+  FILE *fp;
+  if (redirect_file = get_redirect_file(args)) {
+    fp = fopen(redirect_file, "w+");
+    if (!fp) {
+      fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
+      exit(1);
+    }
+    file = fp;
+  }
+
   if (is_builtin_command(args[0])) {
+    char *after_cut = str_join_from(args, 0, " ");
     return exec_builtin_command(args, file);
   }
 
   pid_t pid = fork();
 
   if (pid == 0) {
+    // child
+
+    if (redirect_file) {
+      int fd = open(redirect_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      dup2(fd, STDOUT_FILENO);
+      close(fd);
+    }
     execvp(args[0], args);
 
-    fprintf(file, "%s: command not found\n", args[0]);
+    fprintf(stderr, "%s: command not found\n", args[0]);
     exit(1);
   } else if (pid > 0) {
     int status;

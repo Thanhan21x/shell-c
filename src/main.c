@@ -33,26 +33,7 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    if (includes(args, ">") || includes(args, "1>")) {
-      char filename[256];
-      for (int i = 0; args[i] != NULL; i++) {
-        if (!strcmp(args[i], ">") || !strcmp(args[i], "1>")) {
-          strcpy(filename, args[i + 1]);
-          args[i] = NULL;
-          break;
-        }
-      }
-
-      FILE *fp = fopen(filename, "w+");
-      if (!fp) {
-        fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
-        return 1;
-      } 
-      exec_command(args, fp);
-      fclose(fp);
-    } else {
-      exec_command(args, stdout);
-    }
+    exec_command(args, stdout);
 
     cleanup_args(args);
   }

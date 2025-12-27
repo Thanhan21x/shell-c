@@ -12,6 +12,18 @@ bool includes(char **items, char *item) {
   return false;
 }
 
+char *get_redirect_file(char **args) {
+  for (int i = 0; args[i] != NULL; i++) {
+    if (!strcmp(args[i], ">") || !strcmp(args[i], "1>")) {
+      char *filename = strdup(args[i+1]);
+      args[i] = NULL;
+      return filename;
+    }
+  }
+  return NULL;
+
+}
+
 char *str_join_from(char **items, int from, char *delimeter) {
   char *buffer = calloc(1, sizeof(char *));
   buffer[0] = '\0';

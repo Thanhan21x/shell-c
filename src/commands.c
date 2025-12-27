@@ -139,18 +139,15 @@ int exec_builtin_command(char **args, FILE *file) {
 int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
-  if (is_builtin_command(args[0])) {
-    if (rd->type == 1) {
-      FILE* fp = fopen(rd->filename, "w+");
-      if (!fp) {
-        fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
-        exit(1);
-      }
-      return exec_builtin_command(args, fp);
-    } else if (rd->type == 2) {
-      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      dup2(fd, STDERR_FILENO);
+  if (rd->filename) {
+    if (rd->type == 1 && rd->overwrite) {
+      file = fopen(rd->filename, "w+");
+    } else if (rd->type == 1 && !rd->overwrite) {
+      file = fopen(rd->filename, "a+");
     }
+  }
+
+  if (is_builtin_command(args[0])) {
     return exec_builtin_command(args, file);
   }
 
@@ -160,15 +157,7 @@ int exec_command(char **args, FILE *file) {
     // child
 
     if (rd->filename) {
-      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      if (rd->type == 1) {
-        dup2(fd, STDOUT_FILENO);
-      } else if (rd->type == 2) {
-        dup2(fd, STDERR_FILENO);
-      }
-
-      close(fd);
-      free(rd);
+      do_redirection(rd);
     }
 
     execvp(args[0], args);

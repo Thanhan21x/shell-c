@@ -55,7 +55,6 @@ void do_redirection(redirect_t *rd) {
         exit(1);
     }
 
-    fprintf(stderr, "redirect type = %d\n", rd->type);
 
     if (rd->type == 1) {
         dup2(fd, STDOUT_FILENO);

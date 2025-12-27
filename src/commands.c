@@ -28,7 +28,7 @@ int exec_builtin_cd(char **args, FILE *file) {
 
   int code = chdir(path);
   if (code != 0) {
-    fprintf(file, "cd: %s: No such file or directory\n", path);
+    fprintf(stderr, "cd: %s: No such file or directory\n", path);
   }
 
   free(path);
@@ -64,7 +64,7 @@ int exec_builtin_pwd(FILE *file) {
     return 0;
   }
 
-  fprintf(file, "Could not get current working directory");
+  fprintf(stderr, "Could not get current working directory");
 
   return 1;
 }
@@ -83,7 +83,7 @@ int exec_builtin_type(char **args, FILE *file) {
   char *paths = strdup(getenv("PATH"));
 
   if (paths == NULL) {
-    fprintf(file, "%s: not found\n", args[1]);
+    fprintf(stderr, "%s: not found\n", args[1]);
 
     return 1;
   }

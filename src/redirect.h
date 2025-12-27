@@ -18,6 +18,5 @@ typedef struct REDIRECT_T{
 
 redirect_t *is_redirection(char **args);
 
-void do_redirection(redirect_t* rd);
 
 #endif // !REDIRECT_H

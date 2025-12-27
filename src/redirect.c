@@ -12,21 +12,21 @@ redirect_t *is_redirection(char **args) {
     if (!strcmp(args[i], ">") || !strcmp(args[i], "1>")) {
       rd->filename = strdup(args[i+1]);
       rd->type = 1;
-      rd->overwrite = true;
+      rd->mode = "w";
       args[i] = NULL;
       args[i+1] = NULL;
       return rd;
     } else if (!strcmp(args[i], "2>")) {
       rd->filename = strdup(args[i+1]);
       rd->type = 2;
-      rd->overwrite = true;
+      rd->mode = "W";
       args[i] = NULL;
       args[i+1] = NULL;
       return rd;
     } else if (!strcmp(args[i], ">>") || !strcmp(args[i], "1>>")) {
       rd->filename = strdup(args[i+1]);
       rd->type = 1;
-      rd->overwrite = false;
+      rd->mode = "a";
       args[i] = NULL;
       args[i+1] = NULL;
       return rd;
@@ -35,7 +35,6 @@ redirect_t *is_redirection(char **args) {
 
   rd->filename = NULL;
   rd->type = -1;
-  rd->overwrite = false;
   return rd;
 
 }
@@ -44,7 +43,7 @@ redirect_t *is_redirection(char **args) {
 void do_redirection(redirect_t *rd) {
     int fd;
 
-    if (rd->overwrite) {
+    if (!strcmp(rd->mode, "w")) {
         fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     } else {
         fd = open(rd->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);

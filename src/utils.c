@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 bool includes(char **items, char *item) {
   for (int i = 0; items[i] != NULL; i++) {
@@ -53,4 +54,18 @@ void cleanup_args(char **args) {
   }
 
   free(args);
+}
+
+void ensure_parent_dirs(const char *path) {
+  char tmp[512];
+  strncpy(tmp, path, sizeof(path));
+  tmp[sizeof(tmp) -1] = '\0';
+
+  for (char *p = tmp + 1; *p; p++) {
+    if (*p == '/') {
+      *p = '\0';
+      mkdir(tmp, 0755);
+      *p = '/';
+    }
+  }
 }

@@ -13,7 +13,7 @@
 typedef struct REDIRECT_T{
   char *filename;
   int type;
-  bool overwrite;
+  char *mode;
 } redirect_t;
 
 redirect_t *is_redirection(char **args);

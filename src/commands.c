@@ -140,10 +140,16 @@ int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
   if (rd->filename) {
-    if (rd->type == 1 && rd->overwrite) {
-      file = fopen(rd->filename, "w+");
-    } else if (rd->type == 1 && !rd->overwrite) {
-      file = fopen(rd->filename, "a+");
+    ensure_parent_dirs(rd->filename);
+    if (rd->type == 1) {
+      file = fopen(rd->filename, rd->mode);
+      if (!file) {
+        fprintf(stderr, "fail to open file");
+        exit(1);
+      }
+    } else if (rd->type == 2) {
+      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      dup2(fd, STDERR_FILENO);
     }
   }
 
@@ -157,6 +163,7 @@ int exec_command(char **args, FILE *file) {
     // child
 
     if (rd->filename) {
+      ensure_parent_dirs(rd->filename);
       do_redirection(rd);
     }
 

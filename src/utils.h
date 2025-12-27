@@ -12,4 +12,7 @@ char *substr(char *str, int start, int size);
 
 void cleanup_args(char **args);
 
+void ensure_parent_dirs(const char *path);
+
+
 #endif

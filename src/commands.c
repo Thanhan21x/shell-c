@@ -140,13 +140,16 @@ int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
   if (is_builtin_command(args[0])) {
-    if (rd->filename) {
+    if (rd->type == 1) {
       FILE* fp = fopen(rd->filename, "w+");
       if (!fp) {
         fprintf(stderr, "Faild to create file: %s\n", strerror(errno));
         exit(1);
       }
       return exec_builtin_command(args, fp);
+    } else if (rd->type == 2) {
+      int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      dup2(fd, STDERR_FILENO);
     }
     return exec_builtin_command(args, file);
   }

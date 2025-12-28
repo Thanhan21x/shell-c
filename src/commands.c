@@ -139,7 +139,6 @@ int exec_builtin_command(char **args, FILE *file) {
 int exec_command(char **args, FILE *file) {
   redirect_t *rd = is_redirection(args);
 
-
   if (is_builtin_command(args[0])) {
 
     if (rd->filename) {

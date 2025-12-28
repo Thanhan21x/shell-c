@@ -14,5 +14,6 @@ void cleanup_args(char **args);
 
 void ensure_parent_dirs(const char *path);
 
+char **list_executable(char first_char);
 
 #endif

@@ -1,6 +1,7 @@
 #include "args.h"
 #include "commands.h"
 #include "utils.h"
+#include "completer.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,12 @@
 #include <readline/readline.h>
 
 int main(int argc, char *argv[]) {
+    
+  // Enable history
+  using_history();
+  // Bind the completer;
+  initialize_readline();
+
   while (true) {
     setbuf(stdout, NULL);
 
@@ -20,6 +27,13 @@ int main(int argc, char *argv[]) {
     snprintf(prompt, sizeof(prompt), "$ ");
 
     char *input = readline(prompt);
+
+    // Check for EOF.
+    if (!input) {
+      break;
+    }
+
+    add_history(input);
 
     if (strlen(input) < 1) {
       continue;

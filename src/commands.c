@@ -113,11 +113,24 @@ int exec_builtin_type(char **args) {
   return 1;
 }
 
-int exec_builtin_history() {
+int exec_builtin_history(char **args) {
+
+
   HIST_ENTRY **hist = history_list();
 
+
+  int hist_count = 0;
+
   if (hist) {
-    for (int i = 0; hist[i]; i++) {
+    while(hist[hist_count])
+      hist_count++;
+
+    int n = hist_count; 
+    if (args[1]) {
+      n = atoi(args[1]);
+    }
+
+    for (int i = hist_count - n; hist[i]; i++) {
       fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
     }
   }
@@ -147,7 +160,7 @@ int exec_builtin_command(char **args) {
   }
 
   if (strcmp(args[0], "history") == 0) {
-    return exec_builtin_history();
+    return exec_builtin_history(args);
   }
 
   return 1;

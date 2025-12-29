@@ -16,7 +16,7 @@ int exec_builtin_pwd();
 
 int exec_builtin_type(char **args);
 
-int exec_builtin_history();
+int exec_builtin_history(char **args);
 
 int exec_builtin_command(char **args);
 

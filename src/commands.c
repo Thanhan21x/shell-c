@@ -131,18 +131,18 @@ int exec_builtin_history(char **args) {
     }
 
     add_history("history");
+  } else {
+    int n = hist_state->length;
+
+    if (args[1] && atoi(args[1]) != 0) {
+      n = atoi(args[1]);
+    }
+
+    for (int i = hist_state->length - n; hist[i]; i++) {
+      fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
+    }
   }
 
-  int n = hist_state->length;
-
-  if (args[1] && atoi(args[1]) != 0) {
-    n = atoi(args[1]);
-  }
-  
-
-  for (int i = hist_state->length - n; hist[i]; i++) {
-    fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
-  }
 
   return 1;
 }

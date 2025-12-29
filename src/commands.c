@@ -40,7 +40,8 @@ int exec_builtin_cd(char **args) {
 int exec_builtin_echo(char **args) {
   char *output = str_join_from(args, 1, " ");
 
-  write(STDOUT_FILENO, output, strlen(output));
+  fprintf(stdout, "%s\n", output);
+  fflush(stdout);
 
   free(output);
 
@@ -56,9 +57,10 @@ int exec_builtin_exit(char **args) {
 }
 
 int exec_builtin_pwd() {
-  char buffer[1024];
+  char buffer[512];
   if (getcwd(buffer, sizeof(buffer)) != NULL) {
-    write(STDOUT_FILENO, buffer, sizeof(buffer));
+    fprintf(stdout, "%s\n", buffer);
+    fflush(stdout);
     return 0;
   }
 
@@ -73,20 +75,15 @@ int exec_builtin_type(char **args) {
   }
 
   if (is_builtin_command(args[1])) {
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf), "%s is a shell builtin\n", args[1]);
-    write(STDOUT_FILENO, buf, len);
-
+    fprintf(stdout,  "%s is a shell builtin\n", args[1]);
+    fflush(stdout);
     return 0;
   }
 
   char *paths = strdup(getenv("PATH"));
 
   if (paths == NULL) {
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf), "%s: not found\n", args[1]);
-    write(2, buf, len);
-
+    fprintf(stderr, "%s: not found\n", args[1]);
     return 1;
   }
 
@@ -97,11 +94,8 @@ int exec_builtin_type(char **args) {
     snprintf(fullpath, sizeof(fullpath), "%s/%s", path, args[1]);
 
     if (access(fullpath, X_OK) == 0) {
-      char buf[256];
 
-      int len = snprintf(buf, sizeof(buf), "%s is %s\n", args[1], fullpath);
-
-      write(2, buf, len);
+      fprintf(stderr, "%s is %s\n", args[1]);
 
       free(paths);
 
@@ -113,10 +107,7 @@ int exec_builtin_type(char **args) {
 
   free(paths);
 
-  char err_msg[256];
-
-  int len = snprintf(err_msg, sizeof(err_msg), "%s: not found\n", args[1]);
-  write(2, err_msg, len);
+  fprintf(stderr, "%s: not found\n", args[1]);
 
   return 1;
 }
@@ -169,16 +160,14 @@ int exec_command(char **args) {
 
     execvp(args[0], args);
 
-    char err_msg[256];
-    int len = snprintf(err_msg, sizeof(err_msg), "%s: command not found\n", args[0]);
-    write(2, err_msg, len);
+    fprintf(stderr, "%s: command not found\n", args[0]);
     exit(1);
   } else if (pid > 0) {
     int status;
     waitpid(pid, &status, 0);
   } else {
-    char msg[] = "Failed to fork\n";
-    write(2, msg, sizeof(msg));
+
+    fprintf(stderr, "Failed to fork\n");
 
     return 1;
   }

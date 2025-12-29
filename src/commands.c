@@ -95,7 +95,7 @@ int exec_builtin_type(char **args) {
 
     if (access(fullpath, X_OK) == 0) {
 
-      fprintf(stderr, "%s is %s\n", args[1]);
+      fprintf(stderr, "%s is %s\n", args[1], fullpath);
 
       free(paths);
 

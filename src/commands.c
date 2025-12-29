@@ -2,6 +2,7 @@
 #include "path_builder.h"
 #include "utils.h"
 #include "redirect.h"
+#include "pipe.h"
 
 #include "sys/wait.h"
 #include <dirent.h>
@@ -73,9 +74,8 @@ int exec_builtin_type(char **args) {
 
   if (is_builtin_command(args[1])) {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%s is a shell builtin\n", args[1]);
-
-    write(STDOUT_FILENO, buf, sizeof(buf));
+    int len = snprintf(buf, sizeof(buf), "%s is a shell builtin\n", args[1]);
+    write(STDOUT_FILENO, buf, len);
 
     return 0;
   }
@@ -84,8 +84,8 @@ int exec_builtin_type(char **args) {
 
   if (paths == NULL) {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%s: not found\n", args[1]);
-    write(2, buf, sizeof(buf));
+    int len = snprintf(buf, sizeof(buf), "%s: not found\n", args[1]);
+    write(2, buf, len);
 
     return 1;
   }
@@ -99,9 +99,9 @@ int exec_builtin_type(char **args) {
     if (access(fullpath, X_OK) == 0) {
       char buf[256];
 
-      snprintf(buf, sizeof(buf), "%s is %s\n", args[1], fullpath);
+      int len = snprintf(buf, sizeof(buf), "%s is %s\n", args[1], fullpath);
 
-      write(2, buf, sizeof(buf));
+      write(2, buf, len);
 
       free(paths);
 
@@ -114,8 +114,9 @@ int exec_builtin_type(char **args) {
   free(paths);
 
   char err_msg[256];
-  snprintf(err_msg, sizeof(err_msg), "%s: not found\n", args[1]);
-  write(2, err_msg, sizeof(err_msg));
+
+  int len = snprintf(err_msg, sizeof(err_msg), "%s: not found\n", args[1]);
+  write(2, err_msg, len);
 
   return 1;
 }
@@ -147,6 +148,10 @@ int exec_builtin_command(char **args) {
 int exec_command(char **args) {
   redirect_t *rd = get_redirection(args);
 
+  if (includes(args, "|")) {
+    return piping(args);
+  }
+
   if (is_builtin_command(args[0])) {
     if (rd->filename)
       redirect(rd);
@@ -165,8 +170,8 @@ int exec_command(char **args) {
     execvp(args[0], args);
 
     char err_msg[256];
-    snprintf(err_msg, sizeof(err_msg), "%s: command not found\n", args[0]);
-    write(2, err_msg, sizeof(err_msg));
+    int len = snprintf(err_msg, sizeof(err_msg), "%s: command not found\n", args[0]);
+    write(2, err_msg, len);
     exit(1);
   } else if (pid > 0) {
     int status;

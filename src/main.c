@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
   while (true) {
 
     int saved_stdout = dup(STDOUT_FILENO);
+    int saved_stdin = dup(STDIN_FILENO);
     setbuf(stdout, NULL);
 
     char prompt[MAX_INPUT];
@@ -55,6 +56,8 @@ int main(int argc, char *argv[]) {
     cleanup_args(args);
 
     dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stdin, STDIN_FILENO);
+
     close(saved_stdout);
   }
 

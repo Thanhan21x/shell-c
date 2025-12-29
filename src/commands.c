@@ -119,7 +119,7 @@ int exec_builtin_history(char **args) {
   HIST_ENTRY **hist = history_list();
   HISTORY_STATE *hist_state = history_get_history_state();
 
-  if (args[1] && args[2] && strcmp(args[1], "-r")) {
+  if (args[1] && args[2] && !strcmp(args[1], "-r")) {
 
     FILE *fp = fopen(args[2], "rb");
 
@@ -127,6 +127,7 @@ int exec_builtin_history(char **args) {
     size_t cap = 0;
 
     while (getline(&line, &cap, fp) != -1) {
+      line[strcspn(line, "\n")] = '\0';
       add_history(line);
     }
 

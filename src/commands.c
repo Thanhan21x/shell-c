@@ -4,6 +4,7 @@
 #include "redirect.h"
 #include "pipe.h"
 #include <readline/history.h>
+#include <readline/readline.h>
 
 #include "sys/wait.h"
 #include <dirent.h>
@@ -115,24 +116,32 @@ int exec_builtin_type(char **args) {
 
 int exec_builtin_history(char **args) {
 
-
   HIST_ENTRY **hist = history_list();
+  HISTORY_STATE *hist_state = history_get_history_state();
 
+  if (args[1] && args[2] && strcmp(args[1], "-r")) {
 
-  int hist_count = 0;
+    FILE *fp = fopen(args[2], "rb");
 
-  if (hist) {
-    while(hist[hist_count])
-      hist_count++;
+    char *line = NULL;
+    size_t cap = 0;
 
-    int n = hist_count; 
-    if (args[1]) {
-      n = atoi(args[1]);
+    while (getline(&line, &cap, fp) != -1) {
+      add_history(line);
     }
 
-    for (int i = hist_count - n; hist[i]; i++) {
-      fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
-    }
+    add_history("history");
+  }
+
+  int n = hist_state->length;
+
+  if (args[1] && atoi(args[1]) != 0) {
+    n = atoi(args[1]);
+  }
+  
+
+  for (int i = hist_state->length - n; hist[i]; i++) {
+    fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
   }
 
   return 1;

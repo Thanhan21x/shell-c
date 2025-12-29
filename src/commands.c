@@ -19,8 +19,8 @@ bool is_builtin_command(char *command) {
   return includes((char **)builtins, command);
 }
 
-int exec_builtin_cd(char **args, FILE *file) {
-  char *path = build_path(args[1], file);
+int exec_builtin_cd(char **args) {
+  char *path = build_path(args[1]);
 
   if (path == NULL) {
     return 1;
@@ -36,11 +36,10 @@ int exec_builtin_cd(char **args, FILE *file) {
   return code;
 }
 
-int exec_builtin_echo(char **args, FILE *file) {
+int exec_builtin_echo(char **args) {
   char *output = str_join_from(args, 1, " ");
 
-  fprintf(file, "%s\n", output);
-  fflush(file);
+  write(STDOUT_FILENO, output, sizeof(output));
 
   free(output);
 
@@ -55,12 +54,10 @@ int exec_builtin_exit(char **args) {
   exit(exit_code);
 }
 
-int exec_builtin_pwd(FILE *file) {
+int exec_builtin_pwd() {
   char buffer[1024];
   if (getcwd(buffer, sizeof(buffer)) != NULL) {
-    fprintf(file, "%s\n", buffer);
-    fflush(file);
-
+    write(STDOUT_FILENO, buffer, sizeof(buffer));
     return 0;
   }
 
@@ -69,13 +66,16 @@ int exec_builtin_pwd(FILE *file) {
   return 1;
 }
 
-int exec_builtin_type(char **args, FILE *file) {
+int exec_builtin_type(char **args) {
   if (args[1] == NULL) {
     return 1;
   }
 
   if (is_builtin_command(args[1])) {
-    fprintf(file, "%s is a shell builtin\n", args[1]);
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%s is a shell builtin\n", args[1]);
+
+    write(STDOUT_FILENO, buf, sizeof(buf));
 
     return 0;
   }
@@ -83,7 +83,9 @@ int exec_builtin_type(char **args, FILE *file) {
   char *paths = strdup(getenv("PATH"));
 
   if (paths == NULL) {
-    fprintf(stderr, "%s: not found\n", args[1]);
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%s: not found\n", args[1]);
+    write(2, buf, sizeof(buf));
 
     return 1;
   }
@@ -95,7 +97,11 @@ int exec_builtin_type(char **args, FILE *file) {
     snprintf(fullpath, sizeof(fullpath), "%s/%s", path, args[1]);
 
     if (access(fullpath, X_OK) == 0) {
-      fprintf(file, "%s is %s\n", args[1], fullpath);
+      char buf[256];
+
+      snprintf(buf, sizeof(buf), "%s is %s\n", args[1], fullpath);
+
+      write(2, buf, sizeof(buf));
 
       free(paths);
 
@@ -107,18 +113,20 @@ int exec_builtin_type(char **args, FILE *file) {
 
   free(paths);
 
-  fprintf(stderr, "%s: not found\n", args[1]);
+  char err_msg[256];
+  snprintf(err_msg, sizeof(err_msg), "%s: not found\n", args[1]);
+  write(2, err_msg, sizeof(err_msg));
 
   return 1;
 }
 
-int exec_builtin_command(char **args, FILE *file) {
+int exec_builtin_command(char **args) {
   if (strcmp(args[0], "cd") == 0) {
-    return exec_builtin_cd(args, file);
+    return exec_builtin_cd(args);
   }
 
   if (strcmp(args[0], "echo") == 0) {
-    return exec_builtin_echo(args, file);
+    return exec_builtin_echo(args);
   }
 
   if (strcmp(args[0], "exit") == 0) {
@@ -126,39 +134,24 @@ int exec_builtin_command(char **args, FILE *file) {
   }
 
   if (strcmp(args[0], "pwd") == 0) {
-    return exec_builtin_pwd(file);
+    return exec_builtin_pwd();
   }
 
   if (strcmp(args[0], "type") == 0) {
-    return exec_builtin_type(args, file);
+    return exec_builtin_type(args);
   }
 
   return 1;
 }
 
-int exec_command(char **args, FILE *file) {
-  redirect_t *rd = is_redirection(args);
+int exec_command(char **args) {
+  redirect_t *rd = get_redirection(args);
 
   if (is_builtin_command(args[0])) {
+    if (rd->filename)
+      redirect(rd);
 
-    if (rd->filename) {
-      char buf[512];
-      strncpy(buf, rd->filename, sizeof(buf));
-
-      ensure_parent_dirs(buf); // make parent dirs
-
-      if (rd->type == 1) {
-        file = fopen(rd->filename, rd->mode);
-        if (!file) {
-          fprintf(stderr, "Failed to open file: %s\n", strerror(errno));
-          exit(1);
-        }
-      } else if (rd->type == 2) {
-        int fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        dup2(fd, STDERR_FILENO);
-      }
-    }
-      return exec_builtin_command(args, file);
+    return exec_builtin_command(args);
   }
 
   pid_t pid = fork();
@@ -166,38 +159,21 @@ int exec_command(char **args, FILE *file) {
   if (pid == 0) {
     // child
 
-    if (rd->filename) {
-      int fd;
-
-      if (!strcmp(rd->mode, "w")) {
-          fd = open(rd->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-      } else if (!strcmp(rd->mode, "a")) {
-          fd = open(rd->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
-      }
-
-      if (fd < 0) {
-          perror("open");
-          exit(1);
-      }
-
-
-      if (rd->type == 1) {
-          dup2(fd, STDOUT_FILENO);
-      } else if (rd->type == 2) {
-          dup2(fd, STDERR_FILENO);
-      } 
-      close(fd);
-    }
+    if (rd->filename) 
+      redirect(rd);
 
     execvp(args[0], args);
 
-    fprintf(stderr, "%s: command not found\n", args[0]);
+    char err_msg[256];
+    snprintf(err_msg, sizeof(err_msg), "%s: command not found\n", args[0]);
+    write(2, err_msg, sizeof(err_msg));
     exit(1);
   } else if (pid > 0) {
     int status;
     waitpid(pid, &status, 0);
   } else {
-    fprintf(file, "Failed to fork\n");
+    char msg[] = "Failed to fork\n";
+    write(2, msg, sizeof(msg));
 
     return 1;
   }

@@ -30,7 +30,8 @@ void initialize_readline() {
 /* Attempt to complete on the contents of TEXT. START and END show the
 * region of TEXT that contains the word to complete. We can use the 
 * entire line in case we want to do some simple parsing. Return the 
-* array of matches, or NULL if there aren't any. */
+* array of matches, or NULL if there aren't any. 
+*/
 char **shell_completion(const char *text, int start, int end) {
   char **matches;
 

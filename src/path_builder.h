@@ -13,6 +13,6 @@ path_builder_t *init_builder(char *src);
 
 void path_builder_advance(path_builder_t *builder);
 
-char *build_path(char *src, FILE *file);
+char *build_path(char *src);
 
 #endif // !PATH_H

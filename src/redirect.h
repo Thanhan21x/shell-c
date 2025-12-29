@@ -13,10 +13,12 @@
 typedef struct REDIRECT_T{
   char *filename;
   int type;
-  char *mode;
+  char mode;
 } redirect_t;
 
-redirect_t *is_redirection(char **args);
+redirect_t *get_redirection(char **args);
+
+void redirect(redirect_t*);
 
 
 #endif // !REDIRECT_H

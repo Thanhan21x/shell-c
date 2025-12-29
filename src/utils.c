@@ -37,6 +37,8 @@ char *str_join_from(char **items, int from, char *delimeter) {
 
     strcat(buffer, items[i]);
   }
+  // append newline char
+  buffer[strlen(buffer)] = '\n';
 
   return buffer;
 }

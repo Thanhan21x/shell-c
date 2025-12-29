@@ -20,7 +20,10 @@ int main(int argc, char *argv[]) {
   // Bind the completer;
   initialize_readline();
 
+
   while (true) {
+
+    int saved_stdout = dup(STDOUT_FILENO);
     setbuf(stdout, NULL);
 
     char prompt[MAX_INPUT];
@@ -47,9 +50,12 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    exec_command(args, stdout);
+    exec_command(args);
 
     cleanup_args(args);
+
+    dup2(saved_stdout, STDOUT_FILENO);
+    close(saved_stdout);
   }
 
   return 0;

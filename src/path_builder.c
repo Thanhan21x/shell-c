@@ -20,12 +20,12 @@ void path_builder_advance(path_builder_t *builder) {
   }
 }
 
-char *build_path(char *src, FILE *file) {
+char *build_path(char *src) {
   if (src == NULL || src[0] == '~') {
     char *home = strdup(getenv("HOME"));
 
     if (home == NULL) {
-      fprintf(file, "cd: HOME is not set\n");
+      fprintf(stderr, "cd: HOME is not set\n");
       return NULL;
     }
 

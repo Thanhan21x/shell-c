@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "redirect.h"
 #include "pipe.h"
+#include <readline/history.h>
 
 #include "sys/wait.h"
 #include <dirent.h>
@@ -14,7 +15,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-const char *builtins[] = {"cd", "echo", "exit", "pwd", "type", NULL};
+const char *builtins[] = {"cd", "echo", "exit", "pwd", "type", "history", NULL};
 
 bool is_builtin_command(char *command) {
   return includes((char **)builtins, command);
@@ -112,6 +113,18 @@ int exec_builtin_type(char **args) {
   return 1;
 }
 
+int exec_builtin_history() {
+  HIST_ENTRY **hist = history_list();
+
+  if (hist) {
+    for (int i = 0; hist[i]; i++) {
+      fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
+    }
+  }
+
+  return 1;
+}
+
 int exec_builtin_command(char **args) {
   if (strcmp(args[0], "cd") == 0) {
     return exec_builtin_cd(args);
@@ -131,6 +144,10 @@ int exec_builtin_command(char **args) {
 
   if (strcmp(args[0], "type") == 0) {
     return exec_builtin_type(args);
+  }
+
+  if (strcmp(args[0], "history") == 0) {
+    return exec_builtin_history();
   }
 
   return 1;

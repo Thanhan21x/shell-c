@@ -130,7 +130,6 @@ int exec_builtin_history(char **args) {
       add_history(line);
     }
 
-    add_history("history");
   } else if (args[1] == NULL) {
 
     for (int i = 0; hist[i]; i++) {

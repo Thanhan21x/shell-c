@@ -40,7 +40,7 @@ int exec_builtin_cd(char **args) {
 int exec_builtin_echo(char **args) {
   char *output = str_join_from(args, 1, " ");
 
-  write(STDOUT_FILENO, output, sizeof(output));
+  write(STDOUT_FILENO, output, strlen(output));
 
   free(output);
 

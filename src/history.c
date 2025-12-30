@@ -28,7 +28,6 @@ void write_history_to_file(char *path) {
     fprintf(fp, "%s\n", hist[i]->line);
   }
 
-  fprintf(fp, "\n");
 
   fclose(fp);
 }

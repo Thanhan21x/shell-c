@@ -133,13 +133,13 @@ int exec_builtin_history(char **args) {
       }
 
     } else if (strcmp(args[1], "-w") == 0) {
-      fp = fopen(args[2], "w+");
+      fp = fopen(args[2], "w");
       for (int i = 0; hist[i]; i++) {
         fprintf(fp, "%s\n", hist[i]->line);
       }
 
     } else if (strcmp(args[1], "-a") == 0) {
-      fp = fopen(args[2], "a+");
+      fp = fopen(args[2], "a");
       for (int i = 0; hist[i]; i++) {
         fprintf(fp, "%s\n", hist[i]->line);
       }

@@ -140,7 +140,8 @@ int exec_builtin_history(char **args) {
 
     } else if (strcmp(args[1], "-a") == 0) {
       fp = fopen(args[2], "a");
-      for (int i = 0; hist[i]; i++) {
+      static int i = 0;
+      for (i; hist[i]; i++) {
         fprintf(fp, "%s\n", hist[i]->line);
       }
     }

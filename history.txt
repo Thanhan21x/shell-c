@@ -1,4 +1,29 @@
+cat history.txt
+echo > history.txt
+cat history.txt
+
+
+
+rm history.txt
 ls
-cat a
 ls
-history -w history.txt
+ls
+history -a history.txt
+history -a history.txt
+history -r history.txt
+cat history.txt
+echo > history.txt
+cat history.txt
+
+
+
+rm history.txt
+ls
+ls
+ls
+history -a history.txt
+history -a history.txt
+
+cat history.txt
+hisotry -a history.txt
+history -a history.txt

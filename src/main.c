@@ -24,9 +24,8 @@ int main(int argc, char *argv[]) {
 
 
   char *histfile = strdup(getenv("HISTFILE"));
-  puts("not reach here");
   if (histfile) {
-    add_history_from_file(getenv("HISTFILE"));
+    add_history_from_file(getenv(histfile));
   }
 
   while (true) {

@@ -43,7 +43,6 @@ int main(int argc, char *argv[]) {
       break;
     }
 
-    add_history(input);
 
     if (strlen(input) < 1) {
       continue;
@@ -59,6 +58,8 @@ int main(int argc, char *argv[]) {
 
     exec_command(args);
 
+    add_history(input);
+    
     if (histfile) {
       append_history_to_file(histfile);
     }

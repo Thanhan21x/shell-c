@@ -22,10 +22,9 @@ int main(int argc, char *argv[]) {
   // Bind the completer;
   initialize_readline();
 
-
   char *histfile = strdup(getenv("HISTFILE"));
   if (histfile) {
-    add_history_from_file(getenv(histfile));
+    add_history_from_file(histfile);
   }
 
   while (true) {
@@ -68,7 +67,8 @@ int main(int argc, char *argv[]) {
     close(saved_stdout);
   }
 
-  write_history_to_file(getenv("HISTFILE"));
+  write_history_to_file(histfile);
+  free(histfile)
 
   return 0;
 }

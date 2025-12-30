@@ -161,7 +161,7 @@ int exec_builtin_history(char **args) {
 
       int i = 0;
       while (getline(&line, &cap, fp) != -1) {
-        fprintf(stdout, "\t%d %s\n", i++, line);
+        fprintf(stdout, "\t%d %s", i++, line);
       }
 
       fclose(fp);

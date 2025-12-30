@@ -119,17 +119,27 @@ int exec_builtin_history(char **args) {
   HIST_ENTRY **hist = history_list();
   HISTORY_STATE *hist_state = history_get_history_state();
 
-  if (args[1] && args[2] && !strcmp(args[1], "-r")) {
+  if (args[1] && args[2]) {
+    FILE *fp;
+    if (strcmp(args[1], "-r") == 0) {
+      fp = fopen(args[2], "rb");
 
-    FILE *fp = fopen(args[2], "rb");
+      char *line = NULL;
+      size_t cap = 0;
 
-    char *line = NULL;
-    size_t cap = 0;
+      while (getline(&line, &cap, fp) != -1) {
+        line[strcspn(line, "\n")] = '\0';
+        add_history(line);
+      }
 
-    while (getline(&line, &cap, fp) != -1) {
-      line[strcspn(line, "\n")] = '\0';
-      add_history(line);
+    } else if (strcmp(args[1], "-w") == 0) {
+      fp = fopen(args[2], "w+");
+      for (int i = 0; hist[i]; i++) {
+        fprintf(fp, "%s\n", hist[i]->line);
+      }
     }
+
+    fclose(fp);
 
   } else if (args[1] == NULL) {
 

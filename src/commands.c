@@ -154,12 +154,22 @@ int exec_builtin_history(char **args) {
   } else if (args[1] == NULL) {
 
     if (hist_file) {
-      fp = fopen(hist_file, "w");
-    }
+      fp = fopen(hist_file, "rb");
 
-    for (int i = 0; hist[i]; i++) {
-      fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
-      fprintf(fp, "\t%d %s\n", i, hist[i]->line);
+      char *line = NULL;
+      size_t cap = 0;
+
+      int i = 0;
+      while (getline(&line, &cap, fp) != -1) {
+        fprintf(stdout, "\t%d %s\n", i++, line);
+      }
+
+      fclose(fp);
+
+    } else {
+      for (int i = 0; hist[i]; i++) {
+        fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
+      }
     }
 
   } else if (args[1] && atoi(args[1])) {

@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "redirect.h"
 #include "pipe.h"
+#include "history.h"
+
 #include <readline/history.h>
 #include <readline/readline.h>
 
@@ -115,65 +117,26 @@ int exec_builtin_type(char **args) {
 }
 
 int exec_builtin_history(char **args) {
-
-  HIST_ENTRY **hist = history_list();
-  HISTORY_STATE *hist_state = history_get_history_state();
-
-  FILE *fp;
-
-  char *hist_file = strdup(getenv("HISTFILE"));
-
   if (args[1] && args[2]) {
     if (strcmp(args[1], "-r") == 0) {
-      fp = fopen(args[2], "rb");
-
-      char *line = NULL;
-      size_t cap = 0;
-
-      while (getline(&line, &cap, fp) != -1) {
-        line[strcspn(line, "\n")] = '\0';
-        add_history(line);
-      }
+      add_history_from_file(args[2]);
 
     } else if (strcmp(args[1], "-w") == 0) {
-      fp = fopen(args[2], "w");
-      for (int i = 0; hist[i]; i++) {
-        fprintf(fp, "%s\n", hist[i]->line);
-      }
+      write_history_to_file(args[2]);
 
     } else if (strcmp(args[1], "-a") == 0) {
-      fp = fopen(args[2], "a");
-      static int i = 0;
-      for (i; hist[i]; i++) {
-        fprintf(fp, "%s\n", hist[i]->line);
-      }
+      append_history_to_file(args[2]);
     }
 
-    fclose(fp);
-
   } else if (args[1] == NULL) {
-
-    if (hist_file) {
-      fp = fopen(hist_file, "rb");
-
-      char *line = NULL;
-      size_t cap = 0;
-
-      int i = 0;
-      while (getline(&line, &cap, fp) != -1) {
-        fprintf(stdout, "\t%d %s", i++, line);
-      }
-
-      fclose(fp);
-
-    } else {
-      for (int i = 0; hist[i]; i++) {
-        fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
-      }
+    HIST_ENTRY **hist = history_list();
+    for (int i = 0; hist[i]; i++) {
+      fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
     }
 
   } else if (args[1] && atoi(args[1])) {
     HISTORY_STATE *hist_state = history_get_history_state();
+    HIST_ENTRY **hist = history_list();
 
     int n = atoi(args[1]);
 
@@ -181,8 +144,6 @@ int exec_builtin_history(char **args) {
       fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
     }
   }
-
-
   return 1;
 }
 

@@ -2,6 +2,8 @@
 #include "commands.h"
 #include "utils.h"
 #include "completer.h"
+#include "history.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +22,7 @@ int main(int argc, char *argv[]) {
   // Bind the completer;
   initialize_readline();
 
+  add_history_from_file(getenv("HISTFILE"));
 
   while (true) {
 
@@ -60,6 +63,8 @@ int main(int argc, char *argv[]) {
 
     close(saved_stdout);
   }
+
+  write_history_to_file(getenv("HISTFILE"));
 
   return 0;
 }

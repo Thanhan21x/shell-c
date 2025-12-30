@@ -119,8 +119,11 @@ int exec_builtin_history(char **args) {
   HIST_ENTRY **hist = history_list();
   HISTORY_STATE *hist_state = history_get_history_state();
 
+  FILE *fp;
+
+  char *hist_file = strdup(getenv("HISTFILE"));
+
   if (args[1] && args[2]) {
-    FILE *fp;
     if (strcmp(args[1], "-r") == 0) {
       fp = fopen(args[2], "rb");
 
@@ -150,8 +153,13 @@ int exec_builtin_history(char **args) {
 
   } else if (args[1] == NULL) {
 
+    if (hist_file) {
+      fp = fopen(hist_file, "w");
+    }
+
     for (int i = 0; hist[i]; i++) {
       fprintf(stdout, "\t%d %s\n", i, hist[i]->line);
+      fprintf(fp, "\t%d %s\n", i, hist[i]->line);
     }
 
   } else if (args[1] && atoi(args[1])) {

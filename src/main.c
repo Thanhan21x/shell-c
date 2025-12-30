@@ -22,7 +22,11 @@ int main(int argc, char *argv[]) {
   // Bind the completer;
   initialize_readline();
 
-  char *histfile = strdup(getenv("HISTFILE"));
+  char *histfile = NULL;
+  if (getenv("HISTFILE")) {
+    histfile = strdup(getenv("HISTFILE"));
+  }
+
   if (histfile) {
     add_history_from_file(histfile);
   }

@@ -56,12 +56,13 @@ int main(int argc, char *argv[]) {
 
     exec_command(args);
 
-    add_history(input);
-    free(input);
 
     if (histfile) {
       append_history_to_file(histfile);
     }
+
+    add_history(input);
+    free(input);
 
     cleanup_args(args);
 

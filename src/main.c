@@ -40,10 +40,6 @@ int main(int argc, char *argv[]) {
 
     add_history(input);
 
-    if (histfile) {
-      append_history_to_file(histfile);
-    }
-
     // Check for EOF.
     if (!input) {
       break;
@@ -64,9 +60,9 @@ int main(int argc, char *argv[]) {
 
     exec_command(args);
 
-
-
-
+    if (histfile) {
+      write_history_to_file(histfile);
+    }
 
     cleanup_args(args);
 

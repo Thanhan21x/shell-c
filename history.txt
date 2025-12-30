@@ -27,3 +27,12 @@ history -a history.txt
 cat history.txt
 hisotry -a history.txt
 history -a history.txt
+ls
+ls
+ls
+ls
+ls
+ls
+ls
+history
+

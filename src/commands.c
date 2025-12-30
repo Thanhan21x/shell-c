@@ -55,6 +55,11 @@ int exec_builtin_echo(char **args) {
 int exec_builtin_exit(char **args) {
   int exit_code = args[1] != NULL ? atoi(args[1]) : 0;
 
+  if (getenv("HISTFILE")) {
+    char *histfile = strdup(getenv("HISTFILE"));
+    write_history_to_file(histfile);
+  }
+
   cleanup_args(args);
 
   exit(exit_code);

@@ -44,6 +44,10 @@ int main(int argc, char *argv[]) {
 
     add_history(input);
 
+    if (histfile) {
+      write_history_to_file(histfile);
+    }
+
     // Check for EOF.
     if (!input) {
       break;
@@ -64,18 +68,12 @@ int main(int argc, char *argv[]) {
 
     exec_command(args);
 
-
-
     cleanup_args(args);
 
     dup2(saved_stdout, STDOUT_FILENO);
     dup2(saved_stdin, STDIN_FILENO);
 
     close(saved_stdout);
-  }
-
-  if (histfile) {
-    write_history_to_file(histfile);
   }
 
   return 0;

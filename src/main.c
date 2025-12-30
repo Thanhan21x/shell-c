@@ -59,6 +59,10 @@ int main(int argc, char *argv[]) {
 
     exec_command(args);
 
+    if (histfile) {
+      append_history_to_file(histfile);
+    }
+
     cleanup_args(args);
 
     dup2(saved_stdout, STDOUT_FILENO);
@@ -67,10 +71,6 @@ int main(int argc, char *argv[]) {
     close(saved_stdout);
   }
 
-  if (histfile) {
-    write_history_to_file(histfile);
-  }
-  free(histfile);
 
   return 0;
 }

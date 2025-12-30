@@ -137,6 +137,12 @@ int exec_builtin_history(char **args) {
       for (int i = 0; hist[i]; i++) {
         fprintf(fp, "%s\n", hist[i]->line);
       }
+
+    } else if (strcmp(args[1], "-a") == 0) {
+      fp = fopen(args[2], "a+");
+      for (int i = 0; hist[i]; i++) {
+        fprintf(fp, "%s\n", hist[i]->line);
+      }
     }
 
     fclose(fp);

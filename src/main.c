@@ -67,8 +67,10 @@ int main(int argc, char *argv[]) {
     close(saved_stdout);
   }
 
-  write_history_to_file(histfile);
-  free(histfile)
+  if (histfile) {
+    write_history_to_file(histfile);
+  }
+  free(histfile);
 
   return 0;
 }

@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <wait.h>
-#include <errno.h>
+//#include <errno.h>
 
 #include <readline/history.h>
 #include <readline/readline.h>

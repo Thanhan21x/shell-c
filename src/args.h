@@ -2,6 +2,7 @@
 #define ARGS_H
 
 #include <stddef.h>
+#include <string.h>
 
 #define MAX_INPUT 1024
 
